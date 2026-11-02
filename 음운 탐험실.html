@@ -1,0 +1,917 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>음운 탐험실</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* 레이아웃: 해부도 패널(왼쪽)과 설명·조작부(오른쪽)를 나란히, 좁으면 위아래. 상단 탭으로 탐구 → 게임 → 평가 → 결과 → 교사 흐름 */
+:root{
+  --paper:#EAF0F2; --surface:#FFFFFF; --ink:#13232C; --muted:#56676F; --line:#CCD8DE;
+  --teal:#0E7A73; --teal-soft:#D5EDEA; --mark:#E08F00; --mark-soft:#FCEBC8;
+  --tissue:#EDC6BB; --tissue-deep:#D49B8F; --tongue:#D3666F; --air:#F9FBFC; --bone:#F1E7D6; --tooth:#FFFFFF; --lip:#C55A66;
+  --flow:#2D69D2; --good:#1B8547; --good-soft:#DDF2E4; --bad:#C23E37; --bad-soft:#F8E0DE;
+  --f-display:"Do Hyeon","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0D161B; --surface:#15222A; --ink:#E2EBEE; --muted:#93A5AE; --line:#273842;
+  --teal:#3EC0B4; --teal-soft:#14332F; --mark:#F2B23B; --mark-soft:#3A2D12;
+  --tissue:#6B4440; --tissue-deep:#87524A; --tongue:#B44E5A; --air:#0A1115; --bone:#A99E8C; --tooth:#E6E4DC; --lip:#9F4752;
+  --flow:#74A9FF; --good:#4CC27E; --good-soft:#15301F; --bad:#F06B62; --bad-soft:#3A1A18; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0D161B; --surface:#15222A; --ink:#E2EBEE; --muted:#93A5AE; --line:#273842;
+  --teal:#3EC0B4; --teal-soft:#14332F; --mark:#F2B23B; --mark-soft:#3A2D12;
+  --tissue:#6B4440; --tissue-deep:#87524A; --tongue:#B44E5A; --air:#0A1115; --bone:#A99E8C; --tooth:#E6E4DC; --lip:#9F4752;
+  --flow:#74A9FF; --good:#4CC27E; --good-soft:#15301F; --bad:#F06B62; --bad-soft:#3A1A18; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+.wrap{max-width:1120px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;letter-spacing:.01em}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;padding-block:22px 14px}
+.brand h1{font-size:34px;line-height:1.1}
+.brand p{margin:4px 0 0;color:var(--muted);font-size:13.5px}
+.goal{font-size:13px;color:var(--muted);max-width:430px;border-left:3px solid var(--teal);padding-left:10px}
+.goal b{color:var(--ink);font-weight:500}
+
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);display:flex;gap:4px;overflow-x:auto;padding-block:8px;border-bottom:1px solid var(--line);margin-bottom:20px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+nav.tabs button{flex:0 0 auto;border:0;background:none;padding:8px 14px;border-radius:999px;font-weight:500;color:var(--muted);white-space:nowrap}
+nav.tabs button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+nav.tabs .xp{margin-left:auto;align-self:center;font-family:var(--f-mono);font-size:12.5px;color:var(--teal);white-space:nowrap;padding-left:10px}
+
+section[data-view]{display:block}
+.eyebrow{font-size:12px;letter-spacing:.08em;color:var(--teal);font-weight:700}
+
+/* ---------- 탐구실 ---------- */
+.lab{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.lab{grid-template-columns:1fr}}
+.plate{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 10px 6px;position:relative}
+.plate svg{width:100%;height:auto;display:block}
+.plate .cap{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);padding:2px 6px 6px}
+.legend{display:flex;gap:12px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.lbl{font-family:var(--f-body);font-size:11.5px;fill:var(--muted)}
+.lbl.on{fill:var(--mark);font-weight:700}
+.lead{stroke:var(--muted);stroke-width:.8;fill:none;opacity:.6}
+.lead.on{stroke:var(--mark);opacity:1;stroke-width:1.4}
+.spot{fill:var(--mark);opacity:0;transition:opacity .3s}
+.spot.on{opacity:.38;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.12}}
+.folds.vib{animation:vib .09s linear infinite}
+@keyframes vib{50%{transform:translateY(-1.6px)}}
+.folds.tense path{stroke:var(--bad);stroke-width:2}
+.annoBox{position:absolute;left:14px;top:14px;font-size:13px;font-weight:700;color:var(--flow);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px 12px;min-height:26px}
+.annoBox:empty{display:none}
+
+.info{display:flex;flex-direction:column;gap:14px;min-width:0}
+.modeSw{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px}
+.modeSw button{border:0;background:none;padding:6px 16px;border-radius:999px;font-weight:500;color:var(--muted)}
+.modeSw button[aria-pressed="true"]{background:var(--teal);color:#fff}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.now{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;align-items:center}
+.glyph{font-family:var(--f-display);font-size:76px;line-height:1;color:var(--ink);grid-row:span 2;min-width:80px;text-align:center}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12.5px;padding:3px 9px;border-radius:999px;background:var(--teal-soft);color:var(--ink);white-space:nowrap}
+.chip.k{background:var(--mark-soft)}
+.ex{font-size:13px;color:var(--muted)}
+ol.steps{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:24px 1fr;gap:8px;font-size:14px;color:var(--muted);transition:color .2s}
+ol.steps li::before{content:counter(s);font-family:var(--f-mono);font-size:12px;width:22px;height:22px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center}
+ol.steps li.on{color:var(--ink);font-weight:500}
+ol.steps li.on::before{background:var(--flow);border-color:var(--flow);color:#fff}
+.tip{font-size:13px;background:var(--mark-soft);border-radius:10px;padding:9px 12px}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 14px;font-weight:500}
+.btn.pri{background:var(--teal);border-color:var(--teal);color:#fff}
+.btn.big{padding:12px 20px;font-size:16px}
+.btn:disabled{opacity:.45;cursor:default}
+
+.tbl-wrap{overflow-x:auto}
+table.sys{border-collapse:separate;border-spacing:3px;width:100%;min-width:520px;font-size:12.5px;table-layout:fixed}
+table.sys col.h1{width:64px} table.sys col.h2{width:72px}
+table.sys th{font-weight:500;color:var(--muted);text-align:center;padding:4px;white-space:nowrap}
+table.sys th.rh{text-align:left}
+table.sys td{padding:0}
+table.sys td.empty{background:transparent}
+.cell{width:100%;min-height:42px;border:1px solid var(--line);background:var(--surface);border-radius:8px;font-family:var(--f-display);font-size:24px;line-height:1;padding:7px 0}
+.cell:hover{border-color:var(--teal)}
+.cell[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.cell.dim{opacity:.35}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.filters button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;font-size:12.5px}
+.filters button[aria-pressed="true"]{background:var(--mark-soft);border-color:var(--mark)}
+.diph{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;align-items:center}
+.diph .grp{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.diph .grp span{font-size:12px;color:var(--muted);margin-right:4px}
+.diph .cell{width:46px}
+.quad{margin-top:12px}
+.quad svg{width:100%;max-width:340px;height:auto;display:block}
+
+/* ---------- 게임 ---------- */
+.stages{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.stage{display:flex;flex-direction:column;gap:6px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px 16px;min-height:132px}
+.stage:hover{border-color:var(--teal)}
+.stage .no{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.stage h3{font-size:22px}
+.stage p{margin:0;font-size:13px;color:var(--muted)}
+.stage .stars{margin-top:auto;font-size:18px;letter-spacing:2px;color:var(--mark)}
+.stage.boss{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.stage.boss p,.stage.boss .no{color:var(--paper);opacity:.75}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.badge{display:flex;align-items:center;gap:8px;border:1px dashed var(--line);border-radius:999px;padding:4px 12px 4px 4px;font-size:13px;color:var(--muted)}
+.badge .seal{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-size:14px;background:var(--line);color:var(--surface)}
+.badge.got{border-style:solid;border-color:var(--mark);color:var(--ink)}
+.badge.got .seal{background:var(--mark);color:#fff}
+
+.play{max-width:720px;margin:0 auto}
+.hud{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.dots{display:flex;gap:5px}
+.dots i{width:22px;height:6px;border-radius:3px;background:var(--line)}
+.dots i.ok{background:var(--good)} .dots i.no{background:var(--bad)} .dots i.cur{background:var(--ink)}
+.combo{font-family:var(--f-mono);font-size:13px;color:var(--mark);min-height:20px}
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px}
+.qcard .qn{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.qcard h2{font-size:25px;line-height:1.35;margin:6px 0 4px}
+.qcard .clue{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
+@media (max-width:480px){.opts{grid-template-columns:1fr}}
+.opt{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:14px;text-align:left;font-size:16px;display:flex;gap:10px;align-items:center;min-width:0}
+.opt .k{font-family:var(--f-mono);font-size:12px;color:var(--muted);flex:0 0 auto}
+.opt .t{min-width:0}
+.opt.jm .t{font-family:var(--f-display);font-size:26px;line-height:1.1}
+.opt:hover:not(:disabled){border-color:var(--teal)}
+.opt.sel{border-color:var(--ink)}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.fb{margin-top:16px;border-radius:12px;padding:12px 14px;font-size:14.5px}
+.fb.ok{background:var(--good-soft)} .fb.no{background:var(--bad-soft)}
+.fb b{display:block;font-size:16px;margin-bottom:2px}
+.fb .ctl{margin-top:10px}
+.end{text-align:center;padding:30px 16px}
+.end .bigstars{font-size:48px;letter-spacing:8px;color:var(--mark)}
+.end .bigstars span{display:inline-block;animation:pop .5s backwards}
+.end .bigstars span:nth-child(2){animation-delay:.15s}.end .bigstars span:nth-child(3){animation-delay:.3s}
+@keyframes pop{from{transform:scale(0) rotate(-40deg)}}
+.end h2{font-size:30px;margin-top:6px}
+
+/* ---------- 평가 ---------- */
+.form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-width:520px}
+@media (max-width:480px){.form{grid-template-columns:1fr 1fr}.form .nm{grid-column:span 2}}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.form input{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 11px;min-width:0}
+.review{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.rv{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;font-size:14px}
+.rv .h{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.rv .h b{font-weight:500}
+.mark{font-family:var(--f-mono);font-size:12px;padding:1px 8px;border-radius:999px}
+.mark.o{background:var(--good-soft);color:var(--good)} .mark.x{background:var(--bad-soft);color:var(--bad)}
+.rv p{margin:4px 0 0;color:var(--muted);font-size:13.5px}
+
+/* ---------- 결과 ---------- */
+.me{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:760px){.me{grid-template-columns:1fr}}
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar{display:grid;grid-template-columns:96px 1fr 46px;gap:10px;align-items:center;font-size:13px}
+.bar .tr{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.bar .tr i{display:block;height:100%;background:var(--teal);border-radius:5px}
+.bar .v{font-family:var(--f-mono);font-size:12px;text-align:right;font-variant-numeric:tabular-nums}
+.code{font-family:var(--f-mono);font-size:12.5px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;word-break:break-all;user-select:all}
+.lvl{font-family:var(--f-display);font-size:54px;line-height:1;color:var(--teal)}
+
+/* ---------- 교사 ---------- */
+textarea{width:100%;min-height:130px;font-family:var(--f-mono);font-size:12px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}
+@media (max-width:640px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tile .n{font-family:var(--f-display);font-size:32px;line-height:1.1}
+.tile .l{font-size:12px;color:var(--muted)}
+.dist{display:flex;height:12px;border-radius:6px;overflow:hidden;margin-top:6px;background:var(--line)}
+.dist i{display:block;height:100%}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+.items{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px;margin-top:8px}
+.items div{border-radius:6px;padding:6px 0;text-align:center;font-family:var(--f-mono);font-size:11px;line-height:1.2;font-variant-numeric:tabular-nums}
+.items div b{display:block;font-size:12.5px}
+.worst{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13.5px}
+.worst li span{font-family:var(--f-mono);color:var(--bad);margin-right:6px}
+table.roster{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
+table.roster th,table.roster td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+table.roster th{color:var(--muted);font-weight:500}
+table.roster td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.warn{color:var(--bad);font-size:12px}
+.note{font-size:13px;color:var(--muted)}
+.sample-tag{font-size:12px;background:var(--mark-soft);border-radius:6px;padding:2px 8px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.mt{margin-top:16px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="brand">
+    <h1>음운 탐험실</h1>
+    <p>현대 국어의 자음 19개 · 모음 21개를 발음 기관으로 들여다보기</p>
+  </div>
+  <div class="goal"><b>학습 목표</b> 국어의 자음과 모음을 발음 기관, 소리 내는 방법, 소리의 세기, 혀의 위치와 입술 모양에 따라 분류하고 그 특성을 설명할 수 있다.<br>2022 개정 국어 · 중학교 1~3학년군 문법 영역</div>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="화면">
+  <button role="tab" data-go="lab">① 탐구실</button>
+  <button role="tab" data-go="play">② 도전 스테이지</button>
+  <button role="tab" data-go="test">③ 확인 평가</button>
+  <button role="tab" data-go="me">④ 나의 결과</button>
+  <button role="tab" data-go="teacher">선생님용</button>
+  <span class="xp" id="xpBadge">0 XP</span>
+</nav>
+
+<!-- ================= 탐구실 ================= -->
+<section data-view="lab">
+  <div class="lab">
+    <div class="plate">
+      <svg id="tract" viewBox="0 0 520 370" role="img" aria-label="머리 옆 단면으로 본 발음 기관과 공기의 흐름">
+        <defs>
+          <radialGradient id="g-spot"><stop offset="0" stop-color="var(--mark)"/><stop offset="1" stop-color="var(--mark)" stop-opacity="0"/></radialGradient>
+        </defs>
+        <g transform="translate(60,0)">
+          <!-- 얼굴 조직 -->
+          <path fill="var(--tissue)" d="M96,0 C84,26 72,52 64,70 C54,88 36,100 28,112 C24,122 34,128 46,130 C44,140 42,148 42,158 L44,212 C46,226 52,236 60,244 C76,258 100,266 120,270 L150,300 L160,370 L300,370 L300,0 Z"/>
+          <!-- 코안 -->
+          <path fill="var(--air)" d="M34,118 C44,100 70,90 100,90 L232,88 C266,88 290,104 290,128 L262,128 L236,124 Q168,106 96,140 L62,132 Z"/>
+          <!-- 입안 + 인두 + 후두 -->
+          <path fill="var(--air)" d="M56,172 L76,168 L98,156 Q165,122 232,138 L262,128 L290,128 L290,370 L258,370 L258,320 L240,300 L200,268 L140,236 L100,214 L76,206 L56,190 Z"/>
+          <!-- 입천장(뼈) -->
+          <path fill="var(--bone)" stroke="var(--tissue-deep)" stroke-width="1" d="M98,153 Q165,118 232,134 L236,124 Q168,106 96,140 Z"/>
+          <!-- 잇몸 둔덕 -->
+          <path fill="var(--tissue-deep)" d="M84,158 Q92,150 104,150 L98,156 Z"/>
+          <!-- 혀 -->
+          <path id="tongue" fill="var(--tongue)" d=""/>
+          <!-- 아래턱 조직 -->
+          <path id="jawTissue" fill="var(--tissue)" d=""/>
+          <!-- 여린입천장(목젖 포함) -->
+          <path id="velum" fill="none" stroke="var(--tissue-deep)" stroke-width="11" stroke-linecap="round" d=""/>
+          <!-- 이 -->
+          <path fill="var(--tooth)" stroke="var(--tissue-deep)" stroke-width=".8" d="M74,157 L85,157 L83,181 L76,183 Z"/>
+          <path id="lowTooth" fill="var(--tooth)" stroke="var(--tissue-deep)" stroke-width=".8" d=""/>
+          <!-- 입술 -->
+          <path id="upLip" fill="var(--lip)" d=""/>
+          <path id="loLip" fill="var(--lip)" d=""/>
+          <!-- 목청(성대) -->
+          <g class="folds" id="folds"><path stroke="var(--tissue-deep)" stroke-width="4" stroke-linecap="round" d="M259,300 L270,298 M289,300 L278,298"/></g>
+          <!-- 흐름 경로(보이지 않음) -->
+          <path id="pOral" fill="none" stroke="none" d="M274,370 L274,300 C275,250 274,196 262,166 C250,144 200,146 150,152 C120,156 100,166 80,178 L20,180"/>
+          <path id="pNasal" fill="none" stroke="none" d="M274,370 L274,300 C275,240 277,168 274,138 C270,110 240,100 180,100 L100,104 C70,108 50,112 18,116"/>
+          <!-- 조음 위치 강조점 -->
+          <circle class="spot" data-place="양순" cx="54" cy="179" r="14"/>
+          <circle class="spot" data-place="치조" cx="99" cy="153" r="13"/>
+          <circle class="spot" data-place="경구개" cx="150" cy="130" r="16"/>
+          <circle class="spot" data-place="연구개" cx="244" cy="134" r="15"/>
+          <circle class="spot" data-place="후음" cx="274" cy="299" r="15"/>
+          <g id="particles"></g>
+          
+        </g>
+        <!-- 이름표 -->
+        <g>
+          <path class="lead" data-l="양순" d="M58,206 L112,184"/><text class="lbl" data-l="양순" x="4" y="210">입술</text>
+          <path class="lead" data-l="치조" d="M58,150 L156,153"/><text class="lbl" data-l="치조" x="4" y="146">윗잇몸</text>
+          <text class="lbl" x="4" y="162" style="font-size:10px">(치조)</text>
+          <path class="lead" data-l="경구개" d="M210,128 L250,40 L362,40"/><text class="lbl" data-l="경구개" x="366" y="44">센입천장(경구개)</text>
+          <path class="lead" data-l="연구개" d="M306,132 L330,74 L362,74"/><text class="lbl" data-l="연구개" x="366" y="78">여린입천장(연구개)</text>
+          <path class="lead" d="M250,104 L362,108"/><text class="lbl" x="366" y="112">코안</text>
+          <path class="lead" d="M240,200 L362,200"/><text class="lbl" x="366" y="204">혀</text>
+          <path class="lead" d="M346,230 L362,236"/><text class="lbl" x="366" y="240">인두(목안)</text>
+          <path class="lead" data-l="후음" d="M352,299 L362,299"/><text class="lbl" data-l="후음" x="366" y="303">목청(성대)</text>
+        </g>
+      </svg>
+      <div class="annoBox" id="anno" aria-live="polite"></div>
+      <div class="cap">
+        <div class="legend"><span><i style="background:var(--flow)"></i>공기의 흐름</span><span><i style="background:var(--mark)"></i>소리 나는 자리</span><span><i style="background:var(--tongue)"></i>혀</span></div>
+        <span>머리를 옆으로 자른 단면 · 왼쪽이 얼굴 앞</span>
+      </div>
+    </div>
+
+    <div class="info">
+      <div class="row">
+        <div class="modeSw" role="group" aria-label="자음 또는 모음">
+          <button id="swC" aria-pressed="true">자음 19</button>
+          <button id="swV" aria-pressed="false">모음 21</button>
+        </div>
+        <div class="ctl">
+          <button class="btn" id="slowBtn" aria-pressed="false">천천히 보기</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="now">
+          <div class="glyph" id="nowGlyph">ㅂ</div>
+          <div class="chips" id="nowChips"></div>
+          <div class="ex" id="nowEx"></div>
+        </div>
+        <ol class="steps" id="steps"></ol>
+      </div>
+      <div class="tip" id="tip"></div>
+    </div>
+  </div>
+
+  <div class="card mt" id="pickC">
+    <div class="row"><h3 style="font-size:22px">자음 체계표</h3><span class="note">칸을 누르면 발음 기관이 움직여요</span></div>
+    <div class="filters" id="filtersC"></div>
+    <div class="tbl-wrap"><table class="sys" id="tblC"></table></div>
+  </div>
+  <div class="card mt" id="pickV" hidden>
+    <div class="row"><h3 style="font-size:22px">모음 체계표</h3><span class="note">단모음 10개 · 이중 모음 11개</span></div>
+    <div class="filters" id="filtersV"></div>
+    <div class="tbl-wrap"><table class="sys" id="tblV"></table></div>
+    <div class="diph" id="diph"></div>
+    <div class="quad" id="quad"></div>
+  </div>
+</section>
+
+<!-- ================= 도전 스테이지 ================= -->
+<section data-view="play" hidden>
+  <div id="stageHome">
+    <div class="row"><div><div class="eyebrow">STAGE SELECT</div><h2 style="font-size:28px">도전 스테이지</h2></div><span class="note">스테이지마다 8문제 · 7개 이상 맞히면 ★★★와 배지</span></div>
+    <div class="stages mt" id="stageGrid"></div>
+    <h3 class="mt" style="font-size:20px">모은 배지</h3>
+    <div class="badges" id="badgeShelf"></div>
+  </div>
+  <div class="play" id="stagePlay" hidden></div>
+</section>
+
+<!-- ================= 확인 평가 ================= -->
+<section data-view="test" hidden>
+  <div class="play" id="testBox"></div>
+</section>
+
+<!-- ================= 나의 결과 ================= -->
+<section data-view="me" hidden>
+  <div id="meBox"></div>
+</section>
+
+<!-- ================= 선생님용 ================= -->
+<section data-view="teacher" hidden>
+  <div class="row"><div><div class="eyebrow">FOR TEACHERS</div><h2 style="font-size:28px">학습 현황판</h2></div></div>
+  <p class="note" style="max-width:68ch">학생이 ‘나의 결과’에서 복사한 결과 코드를 한 줄에 하나씩 붙여 넣으세요. 클래스룸 댓글, 패들렛, 구글 설문 등으로 모은 코드를 그대로 붙여 넣으면 됩니다. 같은 반·번호가 여러 번 들어오면 마지막 것만 셉니다. 코드는 이 화면 안에서만 계산되고 어디에도 저장되지 않습니다.</p>
+  <textarea id="codes" spellcheck="false" aria-label="결과 코드 붙여 넣기"></textarea>
+  <div class="ctl mt"><button class="btn pri" id="analyze">분석하기</button><button class="btn" id="clearCodes">비우기</button><button class="btn" id="loadSample">예시 데이터 넣기</button><span class="note" id="sampleNote"></span></div>
+  <div id="report"></div>
+</section>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ============ 자료 ============ */
+const PLACE={양순:"입술소리",치조:"잇몸소리",경구개:"센입천장소리",연구개:"여린입천장소리",후음:"목청소리"};
+const PLACE_ORG={양순:"두 입술",치조:"혀끝과 윗잇몸",경구개:"혓바닥과 센입천장",연구개:"혀의 뒷부분과 여린입천장",후음:"목청 사이"};
+const MANNER={파열:"파열음",마찰:"마찰음",파찰:"파찰음",비음:"비음",유음:"유음"};
+const MANNER_DESC={파열:"공기를 막았다가 한꺼번에 터뜨리며 내는 소리",마찰:"통로를 좁혀 공기가 스치며 나오게 하는 소리",파찰:"막았다가 조금씩 열면서 공기가 스치며 나오게 하는 소리",비음:"입안을 막고 공기를 코로 내보내는 소리",유음:"혀끝을 잇몸에 가볍게 대고 공기를 혀 옆으로 흘려보내는 소리"};
+const STR={예사:"예사소리",된:"된소리",거센:"거센소리"};
+const C=[
+ ["ㅂ","양순","파열","예사","바다"],["ㅃ","양순","파열","된","뿔"],["ㅍ","양순","파열","거센","파도"],["ㅁ","양순","비음",null,"마을"],
+ ["ㄷ","치조","파열","예사","다리"],["ㄸ","치조","파열","된","딸기"],["ㅌ","치조","파열","거센","토끼"],
+ ["ㅅ","치조","마찰","예사","사과"],["ㅆ","치조","마찰","된","쌀"],["ㄴ","치조","비음",null,"나무"],["ㄹ","치조","유음",null,"라면"],
+ ["ㅈ","경구개","파찰","예사","자두"],["ㅉ","경구개","파찰","된","짝꿍"],["ㅊ","경구개","파찰","거센","치마"],
+ ["ㄱ","연구개","파열","예사","가방"],["ㄲ","연구개","파열","된","꿈"],["ㅋ","연구개","파열","거센","코"],["ㅇ","연구개","비음",null,"강(받침 ㅇ)"],
+ ["ㅎ","후음","마찰",null,"하늘"]
+].map(a=>({g:a[0],place:a[1],manner:a[2],str:a[3],ex:a[4],voiced:["비음","유음"].includes(a[2]),type:"c"}));
+const V1=[
+ ["ㅣ","전설","고",0,"이"],["ㅔ","전설","중",0,"에"],["ㅐ","전설","저",0,"애"],["ㅟ","전설","고",1,"위"],["ㅚ","전설","중",1,"외"],
+ ["ㅡ","후설","고",0,"으"],["ㅓ","후설","중",0,"어"],["ㅏ","후설","저",0,"아"],["ㅜ","후설","고",1,"우"],["ㅗ","후설","중",1,"오"]
+].map(a=>({g:a[0],fb:a[1],h:a[2],round:!!a[3],ex:a[4],type:"v",mono:true,voiced:true}));
+const H_NAME={고:"고모음",중:"중모음",저:"저모음"};
+const V2=[
+ ["ㅑ","j","ㅏ"],["ㅒ","j","ㅐ"],["ㅕ","j","ㅓ"],["ㅖ","j","ㅔ"],["ㅛ","j","ㅗ"],["ㅠ","j","ㅜ"],
+ ["ㅘ","w","ㅏ","ㅗ"],["ㅙ","w","ㅐ","ㅗ"],["ㅝ","w","ㅓ","ㅜ"],["ㅞ","w","ㅔ","ㅜ"],["ㅢ","ui","ㅣ","ㅡ"]
+].map(a=>({g:a[0],semi:a[1],to:a[2],from:a[3]||"ㅣ",type:"v",mono:false,voiced:true}));
+const ALL={};[...C,...V1,...V2].forEach(p=>ALL[p.g]=p);
+const josa=(w,a,b)=>{const ch=w.charCodeAt(w.length-1);if(ch>=0xAC00&&ch<=0xD7A3)return w+(((ch-0xAC00)%28)?a:b);
+  const jamoBatchim={"ㄱ":1,"ㄴ":1,"ㄷ":1,"ㄹ":1,"ㅁ":1,"ㅂ":1,"ㅅ":1,"ㅇ":1,"ㅈ":1,"ㅊ":1,"ㅋ":1,"ㅌ":1,"ㅍ":1,"ㅎ":1,"ㄲ":1,"ㄸ":1,"ㅃ":1,"ㅆ":1,"ㅉ":1};
+  return w+(jamoBatchim[w]?a:b)};
+const q_=g=>"‘"+g+"’";
+function semiName(p){return p.semi==="j"?"반모음 ‘ㅣ̆’":p.semi==="w"?"반모음 ‘ㅗ̆/ㅜ̆’":"반모음 ‘ㅣ̆’"}
+function describe(p){
+  if(p.type==="c")return [PLACE[p.place],MANNER[p.manner],p.str?STR[p.str]:(p.g==="ㅎ"?null:null),p.voiced?"울림소리":"안울림소리"].filter(Boolean);
+  if(p.mono)return [p.fb+" 모음",H_NAME[p.h],p.round?"원순 모음":"평순 모음","단모음"];
+  return ["이중 모음",p.semi==="ui"?"‘ㅡ’ + 반모음 ‘ㅣ̆’":semiName(p)+" + ‘"+p.to+"’"];
+}
+
+/* ============ 저장 ============ */
+const KEY="eumun-lab-v1";
+let S={xp:0,best:{},badges:[],test:null,who:{ban:"",no:"",name:""}};
+try{const raw=localStorage.getItem(KEY);if(raw)S=Object.assign(S,JSON.parse(raw))}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){} updXP()}
+function updXP(){document.getElementById("xpBadge").textContent=S.xp+" XP"}
+updXP();
+
+/* ============ 탭 ============ */
+const VIEWS=["lab","play","test","me","teacher"];
+function show(v){if(!VIEWS.includes(v))v="lab";
+  document.querySelectorAll("section[data-view]").forEach(s=>s.hidden=s.dataset.view!==v);
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.go===v?"true":"false"));
+  if(v==="play")renderStageHome(); if(v==="test")renderTest(); if(v==="me")renderMe();
+  if(v==="lab")running=true; else running=false; if(running)kick();
+}
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{location.hash=b.dataset.go;}));
+window.addEventListener("hashchange",()=>show(location.hash.slice(1)));
+
+/* ============ 발음 기관 그리기 ============ */
+const $=id=>document.getElementById(id);
+const REDUCED=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const FIX=[[250,252],[246,306],[200,276],[140,242],[98,219]];
+const T={
+ rest:[[94,199],[125,188],[180,180],[232,200]],
+ alv:[[100,154],[120,168],[175,182],[232,201]],
+ alvNear:[[100,161],[121,172],[175,183],[232,201]],
+ alvOpen:[[98,170],[122,178],[176,184],[232,201]],
+ pal:[[94,201],[132,143],[166,133],[228,186]],
+ palNear:[[94,201],[132,149],[166,140],[228,188]],
+ vel:[[94,203],[130,197],[204,158],[238,141]],
+ velN:[[94,203],[130,197],[204,164],[240,158]],
+ velOpen:[[94,203],[130,198],[202,168],[236,156]],
+ "ㅣ":[[94,199],[120,161],[150,149],[222,190]],
+ "ㅔ":[[94,201],[122,171],[155,163],[226,198]],
+ "ㅐ":[[94,205],[124,185],[160,181],[230,207]],
+ "ㅡ":[[94,203],[130,191],[205,153],[240,171]],
+ "ㅓ":[[94,205],[132,197],[205,171],[242,189]],
+ "ㅏ":[[94,211],[132,209],[195,198],[244,214]]
+};
+const VT={"ㅟ":"ㅣ","ㅚ":"ㅔ","ㅜ":"ㅡ","ㅗ":"ㅓ"};
+const JAW={고:.08,중:.42,저:.9};
+function art(p,phase){ // phase: closed|open|narrow
+  const a={tongue:T.rest,jaw:.25,round:0,lipClose:0,velum:0,flowPath:"oral"};
+  if(p.type==="c"){
+    if(p.manner==="비음"){a.velum=1;a.flowPath="nasal"}
+    if(p.place==="양순"){a.tongue=T.rest;a.jaw=.2; a.lipClose=(phase==="open")?0:1; if(phase==="open")a.jaw=.35}
+    if(p.place==="치조"){a.jaw=.22; a.tongue= phase==="open"?T.alvOpen: phase==="narrow"?T.alvNear:T.alv}
+    if(p.place==="경구개"){a.jaw=.22; a.tongue= phase==="open"?T.palNear.map(([x,y])=>[x,y+10]): phase==="narrow"?T.palNear:T.pal}
+    if(p.place==="연구개"){a.jaw=.25; a.tongue= p.manner==="비음"?T.velN: phase==="open"?T.velOpen:T.vel}
+    if(p.place==="후음"){a.jaw=.38;a.tongue=T.rest}
+    return a;
+  }
+  const base=p.mono?p:ALL[phase==="from"?(p.from):p.to];
+  if(!p.mono&&phase==="from"){ // 반모음 자리
+    const f=ALL[p.from]; a.tongue=T[VT[f.g]||f.g].map(([x,y])=>[x,y-3]); a.jaw=.06; a.round=f.round?1:0; return a;
+  }
+  a.tongue=T[VT[base.g]||base.g]; a.jaw=JAW[base.h]; a.round=base.round?1:0; return a;
+}
+/* 현재 상태(부드럽게 따라감) */
+let cur={tongue:T.rest.map(p=>p.slice()),jaw:.25,round:0,lipClose:0,velum:0};
+let tgt=art(C[0],"closed");
+function crPath(pts){const n=pts.length;let d="M"+pts[0][0].toFixed(1)+","+pts[0][1].toFixed(1);
+  for(let i=0;i<n;i++){const p0=pts[(i-1+n)%n],p1=pts[i],p2=pts[(i+1)%n],p3=pts[(i+2)%n];
+    d+=" C"+(p1[0]+(p2[0]-p0[0])/6).toFixed(1)+","+(p1[1]+(p2[1]-p0[1])/6).toFixed(1)+" "+(p2[0]-(p3[0]-p1[0])/6).toFixed(1)+","+(p2[1]-(p3[1]-p1[1])/6).toFixed(1)+" "+p2[0].toFixed(1)+","+p2[1].toFixed(1)}
+  return d+"Z"}
+function draw(){
+  $("tongue").setAttribute("d",crPath([...cur.tongue,...FIX]));
+  const j=cur.jaw*14, ux=-8*cur.round;
+  const loTop=cur.lipClose*173+(1-cur.lipClose)*(186+j-cur.round*5);
+  $("upLip").setAttribute("d",`M${70+ux*.6},148 C${56+ux},145 ${42+ux},154 ${43+ux},165 C${45+ux},172 ${58+ux},175 ${74},171 Z`);
+  $("loLip").setAttribute("d",`M74,${loTop+3} C${60+ux},${loTop-1} ${43+ux},${loTop} ${43+ux},${loTop+10} C${43+ux},${loTop+21} ${57+ux},${loTop+26} 72,${loTop+24} Z`);
+  const tt=190+j; $("lowTooth").setAttribute("d",`M76,${tt} L83,${tt-1} L85,${tt+18} L74,${tt+18} Z`);
+  $("jawTissue").setAttribute("d",`M50,${206+j} L76,${208+j} L100,${219} L140,${242} L200,${276} L246,${306} L258,320 L258,370 L60,370 L48,${240+j} Z`);
+  const v=cur.velum; const cx=258-12*v, cy=126+16*v, tx=281-30*v, ty=139+34*v;
+  $("velum").setAttribute("d",`M228,131 Q${cx},${cy} ${tx},${ty}`);
+}
+function lerp(a,b,k){return a+(b-a)*k}
+function stepArt(k){
+  cur.tongue=cur.tongue.map((p,i)=>[lerp(p[0],tgt.tongue[i][0],k),lerp(p[1],tgt.tongue[i][1],k)]);
+  ["jaw","round","lipClose","velum"].forEach(n=>cur[n]=lerp(cur[n],tgt[n],k));
+}
+
+/* 공기 입자 */
+const NS="http://www.w3.org/2000/svg";
+const pOral=$("pOral"), pNasal=$("pNasal");
+const LO=pOral.getTotalLength(), LN=pNasal.getTotalLength();
+function sFor(path,L,fn){let best=0,bd=1e9;for(let s=0;s<=L;s+=2){const pt=path.getPointAtLength(s);const d=fn(pt);if(d<bd){bd=d;best=s}}return best}
+const PLACE_X={양순:56,치조:100,경구개:150,연구개:244};
+const LC={};Object.keys(PLACE_X).forEach(k=>LC[k]=sFor(pOral,LO,pt=>pt.y<200?Math.abs(pt.x-PLACE_X[k]):1e9));
+LC.후음=sFor(pOral,LO,pt=>Math.abs(pt.y-299)+(pt.x<250?1e3:0));
+const NP=34, parts=[];
+for(let i=0;i<NP;i++){const c=document.createElementNS(NS,"circle");c.setAttribute("r","2.4");c.setAttribute("fill","var(--flow)");$("particles").appendChild(c);parts.push({el:c,s:Math.random()*LO,v:.8+Math.random()*.5,j:0})}
+
+/* 장면 */
+let sel=C[0], clock=0, slow=false, running=true, raf=0, last=0;
+const DUR=2.6;
+function phaseOf(p,t){
+  if(p.type==="v"){ if(p.mono)return {ph:"open",step:t<.35?0:t<.7?1:2};
+    const k=t/DUR; return {ph:k<.35?"from":"to",step:k<.35?1:2}; }
+  const m=p.manner,k=t/DUR;
+  if(m==="파열")return k<.45?{ph:"closed",step:k<.15?0:1}:k<.62?{ph:"open",step:2,burst:true}:{ph:"open",step:2};
+  if(m==="파찰")return k<.4?{ph:"closed",step:k<.13?0:1}:{ph:"narrow",step:2,fric:true};
+  if(m==="마찰")return {ph:"narrow",step:k<.25?0:k<.5?1:2,fric:true};
+  if(m==="비음")return {ph:"closed",step:k<.25?0:k<.5?1:2};
+  if(m==="유음")return {ph:"closed",step:k<.25?0:k<.5?1:2};
+  return {ph:"open",step:0};
+}
+function setSel(p){sel=p;clock=0;renderNow();markCells();
+  document.querySelectorAll(".spot").forEach(s=>s.classList.toggle("on",p.type==="c"&&s.dataset.place===p.place));
+  document.querySelectorAll("[data-l]").forEach(s=>s.classList.toggle("on",p.type==="c"&&s.dataset.l===p.place));
+  $("folds").classList.toggle("vib",!!p.voiced&&!REDUCED);
+  $("folds").classList.toggle("tense",p.type==="c"&&p.str==="된");
+  parts.forEach(q=>{q.s=Math.random()*(p.type==="c"&&p.manner==="비음"?LN:LO)});
+  kick();
+}
+function frame(ts){
+  raf=0; if(!running)return;
+  const dt=Math.min(.05,(ts-(last||ts))/1000); last=ts;
+  const speed=slow?.4:1; clock=(clock+dt*speed)%DUR;
+  const pi=phaseOf(sel,clock);
+  tgt=art(sel,pi.ph);
+  stepArt(REDUCED?1:Math.min(1,dt*speed*(pi.burst?18:9)));
+  draw();
+  const nasal=sel.type==="c"&&sel.manner==="비음";
+  const path=nasal?pNasal:pOral, L=nasal?LN:LO;
+  const closed=pi.ph==="closed"&&!nasal&&sel.manner!=="유음";
+  const lc=sel.type==="c"?LC[sel.place]:0;
+  const asp=sel.str==="거센", tense=sel.str==="된";
+  const boost=pi.burst?(asp?3.2:2.2):1;
+  parts.forEach((q,i)=>{
+    q.s+=dt*speed*95*q.v*boost;
+    if(closed&&q.s>lc-4){q.s=lc-4-((i*7)%22)}
+    if(q.s>L){q.s=Math.random()*20}
+    let pt=path.getPointAtLength(q.s), jx=0,jy=0;
+    if(pi.fric&&Math.abs(q.s-lc)<34){jx=(Math.random()-.5)*7;jy=(Math.random()-.5)*7}
+    if(sel.g==="ㅎ"&&Math.abs(q.s-lc)<26){jx=(Math.random()-.5)*7}
+    q.el.setAttribute("cx",(pt.x+jx).toFixed(1));q.el.setAttribute("cy",(pt.y+jy).toFixed(1));
+    const fade=Math.min(1,(L-q.s)/40);
+    q.el.setAttribute("r",(pi.burst&&asp?3.4:tense?2.1:2.4));
+    q.el.setAttribute("opacity",(fade*.9).toFixed(2));
+  });
+  document.querySelectorAll("#steps li").forEach((li,i)=>li.classList.toggle("on",i===pi.step));
+  let an="";
+  if(sel.type==="c"){ if(pi.burst)an=asp?"숨이 거세게 터진다!":tense?"목청을 긴장시켜 단단하게":"펑! 터진다";
+    else if(pi.ph==="closed"&&!nasal&&sel.manner!=="유음")an="공기가 막혀 있다";
+    else if(nasal)an="공기가 코로 나간다";
+    else if(sel.manner==="유음")an="혀의 양옆으로 흐른다";
+    else if(pi.fric)an="좁은 틈을 스친다"; }
+  else an=sel.mono?"막힘 없이 나간다":(pi.ph==="from"?"반모음 자리에서 출발":"단모음 자리로 미끄러진다");
+  $("anno").textContent=an;
+  if(!REDUCED)raf=requestAnimationFrame(frame);
+}
+function kick(){if(!raf&&running){last=0;raf=requestAnimationFrame(frame)}}
+
+function renderNow(){
+  const p=sel;$("nowGlyph").textContent=p.g;
+  $("nowChips").innerHTML=describe(p).map((t,i)=>`<span class="chip${i===0?" k":""}">${t}</span>`).join("");
+  $("nowEx").textContent=p.type==="c"?`보기 낱말: ${p.ex}`:p.mono?`소리: [${p.ex}]`:`발음하는 동안 혀와 입술이 움직여요`;
+  let st=[];
+  if(p.type==="c"){const where=PLACE_ORG[p.place];
+    if(p.manner==="파열")st=["목청을 지난 공기가 올라온다",`${where}에서 공기 길을 완전히 막는다`,"막은 곳을 한꺼번에 터뜨린다"];
+    if(p.manner==="마찰")st=["목청을 지난 공기가 올라온다",p.g==="ㅎ"?"목청 사이를 좁힌다":`${where} 사이를 좁힌다`,"좁은 틈으로 공기가 스치며 나간다"];
+    if(p.manner==="파찰")st=["목청을 지난 공기가 올라온다",`${where}에서 공기 길을 막는다`,"조금씩 열며 공기가 스치게 한다"];
+    if(p.manner==="비음")st=["목청을 떨며 공기가 올라온다",`${where}에서 입안 길을 막는다`,"여린입천장이 내려가 공기가 코로 나간다"];
+    if(p.manner==="유음")st=["목청을 떨며 공기가 올라온다","혀끝을 윗잇몸에 가볍게 댄다","공기가 혀의 양옆으로 흘러 나간다"];
+  } else if(p.mono){
+    st=["목청을 떨며 공기가 올라온다",`혀의 가장 높은 곳이 입안 ${p.fb==="전설"?"앞쪽":"뒤쪽"}, 높이는 ${p.h==="고"?"높게":p.h==="중"?"중간으로":"낮게"}`,`입술은 ${p.round?"둥글게 오므린다":"평평하게 둔다"} · 처음부터 끝까지 그대로`];
+  } else {
+    st=["목청을 떨며 공기가 올라온다",p.semi==="ui"?"‘ㅡ’ 자리에서 출발한다":`${semiName(p)} 자리에서 출발한다`,p.semi==="ui"?"혀가 ‘ㅣ’ 쪽으로 미끄러진다":`‘${p.to}’ 자리로 혀와 입술이 옮겨 간다`];
+  }
+  $("steps").innerHTML=st.map(s=>`<li>${s}</li>`).join("");
+  let tip="";
+  if(p.type==="c"){
+    if(p.voiced)tip="목에 손을 대고 소리 내 보세요. 떨림이 느껴지면 울림소리예요. 울림소리는 ㄴ, ㄹ, ㅁ, ㅇ 네 개뿐이에요.";
+    else if(p.str==="거센")tip="입 앞에 얇은 종이를 대고 소리 내 보세요. 거센소리는 숨이 거세게 나와 종이가 크게 흔들려요.";
+    else if(p.str==="된")tip="된소리는 목청을 긴장시켜 단단하게 내는 소리예요. 예사소리와 짝을 지어 비교해 보세요.";
+    else if(p.g==="ㅎ")tip="ㅎ은 목청 사이에서 공기가 스치며 나는 마찰음이에요.";
+    else tip=`같은 자리 친구들: ${C.filter(x=>x.place===p.place).map(x=>x.g).join(", ")} — 모두 ${PLACE[p.place]}예요.`;
+  } else if(p.mono) tip=p.round?`‘${p.g}’의 입술만 평평하게 바꾸면 ‘${({"ㅟ":"ㅣ","ㅚ":"ㅔ","ㅜ":"ㅡ","ㅗ":"ㅓ"})[p.g]}’가 돼요. ‘ㅚ, ㅟ’는 이중 모음으로 발음하는 것도 표준 발음으로 허용돼요.`:"거울을 보며 발음해 보세요. 단모음은 소리 내는 동안 입 모양이 변하지 않아요.";
+  else tip="이중 모음은 반모음과 단모음이 합쳐진 소리예요. 반모음은 홀로 소리 나지 못하고 다른 모음에 기대어 소리 나요.";
+  $("tip").textContent=tip;
+}
+
+/* 체계표 */
+let filt=null;
+function cellBtn(g){const p=ALL[g];return `<button class="cell" data-g="${g}" aria-label="${g}: ${describe(p).join(", ")}" aria-pressed="false">${g}</button>`}
+function buildTblC(){
+  const cols=["양순","치조","경구개","연구개","후음"];
+  const rows=[["파열","예사"],["파열","된"],["파열","거센"],["파찰","예사"],["파찰","된"],["파찰","거센"],["마찰","예사"],["마찰","된"],["비음",null],["유음",null]];
+  let h=`<colgroup><col class="h1"><col class="h2">${cols.map(()=>"<col>").join("")}</colgroup><tr><th></th><th></th>${cols.map(c=>`<th>${PLACE[c]}</th>`).join("")}</tr>`;
+  rows.forEach((r,ri)=>{
+    h+="<tr>";
+    if(r[1]){
+      if(ri===0||ri===3||ri===6)h+=`<th class="rh" rowspan="${r[0]==="마찰"?2:3}">${MANNER[r[0]]}</th>`;
+      h+=`<th class="rh">${STR[r[1]]}</th>`;
+    } else h+=`<th class="rh" colspan="2">${MANNER[r[0]]}</th>`;
+    cols.forEach(c=>{
+      if(c==="후음"&&r[0]==="마찰"){ if(r[1]==="예사")h+=`<td rowspan="2">${cellBtn("ㅎ")}</td>`; return; }
+      const f=C.find(x=>x.place===c&&x.manner===r[0]&&x.str===r[1]);
+      h+=f?`<td>${cellBtn(f.g)}</td>`:`<td class="empty"></td>`;
+    });
+    h+="</tr>";
+  });
+  $("tblC").innerHTML=h;
+  const fs=[["울림소리",p=>p.voiced],["안울림소리",p=>!p.voiced],["예사소리",p=>p.str==="예사"],["된소리",p=>p.str==="된"],["거센소리",p=>p.str==="거센"]];
+  $("filtersC").innerHTML=`<span class="note" style="align-self:center">모아 보기</span>`+fs.map((f,i)=>`<button data-f="${i}" aria-pressed="false">${f[0]}</button>`).join("");
+  $("filtersC").querySelectorAll("button").forEach(b=>b.onclick=()=>{const on=b.getAttribute("aria-pressed")!=="true";
+    $("filtersC").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed","false")); b.setAttribute("aria-pressed",on);
+    filt=on?fs[b.dataset.f][1]:null; markCells()});
+}
+function buildTblV(){
+  const cols=[["전설",0],["전설",1],["후설",0],["후설",1]];
+  let h=`<colgroup><col class="h2"><col><col><col><col></colgroup><tr><th></th><th colspan="2">전설 모음</th><th colspan="2">후설 모음</th></tr><tr><th></th><th>평순</th><th>원순</th><th>평순</th><th>원순</th></tr>`;
+  ["고","중","저"].forEach(r=>{h+=`<tr><th class="rh">${H_NAME[r]}</th>`;
+    cols.forEach(([fb,rd])=>{const f=V1.find(v=>v.fb===fb&&v.h===r&&+v.round===rd);h+=f?`<td>${cellBtn(f.g)}</td>`:`<td class="empty"></td>`});h+="</tr>"});
+  $("tblV").innerHTML=h;
+  $("diph").innerHTML=`<div class="grp"><span>반모음 ‘ㅣ̆’ +</span>${V2.filter(v=>v.semi==="j").map(v=>cellBtn(v.g)).join("")}</div><div class="grp"><span>반모음 ‘ㅗ̆/ㅜ̆’ +</span>${V2.filter(v=>v.semi==="w").map(v=>cellBtn(v.g)).join("")}</div><div class="grp"><span>‘ㅡ’ + 반모음 ‘ㅣ̆’</span>${cellBtn("ㅢ")}</div>`;
+  const fs=[["전설 모음",p=>p.mono&&p.fb==="전설"],["후설 모음",p=>p.mono&&p.fb==="후설"],["원순 모음",p=>p.mono&&p.round],["평순 모음",p=>p.mono&&!p.round],["이중 모음",p=>!p.mono]];
+  $("filtersV").innerHTML=`<span class="note" style="align-self:center">모아 보기</span>`+fs.map((f,i)=>`<button data-f="${i}" aria-pressed="false">${f[0]}</button>`).join("");
+  $("filtersV").querySelectorAll("button").forEach(b=>b.onclick=()=>{const on=b.getAttribute("aria-pressed")!=="true";
+    $("filtersV").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed","false")); b.setAttribute("aria-pressed",on);
+    filt=on?fs[b.dataset.f][1]:null; markCells()});
+  // 모음 사각도
+  const pos={전설:{고:[42,30],중:[64,78],저:[88,126]},후설:{고:[212,30],중:[212,78],저:[186,126]}};
+  let s=`<svg viewBox="0 0 300 160" role="img" aria-label="입안에서 단모음의 혀 위치"><path d="M24,18 L280,18 L280,140 L70,140 Z" fill="none" stroke="var(--line)" stroke-width="1.5"/>
+  <text x="24" y="12" class="lbl">앞(전설)</text><text x="280" y="12" class="lbl" text-anchor="end">뒤(후설)</text><text x="292" y="34" class="lbl" text-anchor="end" style="font-size:10px">높음</text><text x="292" y="136" class="lbl" text-anchor="end" style="font-size:10px">낮음</text>`;
+  V1.forEach(v=>{const [x,y]=pos[v.fb][v.h];const dx=v.round?30:0;
+    s+=`<g class="qv" data-g="${v.g}" style="cursor:pointer"><circle cx="${x+dx}" cy="${y}" r="13" fill="var(--surface)" stroke="${v.round?"var(--teal)":"var(--muted)"}" stroke-width="1.5" ${v.round?'stroke-dasharray="3 2"':""}/><text x="${x+dx}" y="${y+6}" text-anchor="middle" style="font-family:var(--f-display);font-size:17px;fill:var(--ink)">${v.g}</text></g>`});
+  s+=`<text x="24" y="156" class="lbl" style="font-size:10.5px">점선 동그라미 = 원순 모음 · 입안을 옆에서 본 혀의 위치</text></svg>`;
+  $("quad").innerHTML=s;
+  $("quad").querySelectorAll(".qv").forEach(g=>g.addEventListener("click",()=>setSel(ALL[g.dataset.g])));
+}
+function markCells(){document.querySelectorAll(".cell[data-g]").forEach(b=>{const p=ALL[b.dataset.g];b.setAttribute("aria-pressed",p===sel?"true":"false");b.classList.toggle("dim",!!filt&&!filt(p))})}
+document.addEventListener("click",e=>{const b=e.target.closest(".cell[data-g]");if(b&&b.closest("[data-view=lab]"))setSel(ALL[b.dataset.g])});
+function setMode(m){$("swC").setAttribute("aria-pressed",m==="c");$("swV").setAttribute("aria-pressed",m==="v");$("pickC").hidden=m!=="c";$("pickV").hidden=m!=="v";filt=null;
+  document.querySelectorAll(".filters button").forEach(x=>x.setAttribute("aria-pressed","false"))}
+$("swC").onclick=()=>{setMode("c");setSel(C[0])};
+$("swV").onclick=()=>{setMode("v");setSel(V1[7])};
+$("slowBtn").onclick=()=>{slow=!slow;$("slowBtn").setAttribute("aria-pressed",slow);$("slowBtn").textContent=slow?"보통 속도":"천천히 보기"};
+buildTblC();buildTblV();
+function openInLab(g){const p=ALL[g];if(!p)return;setMode(p.type);location.hash="lab";setSel(p);window.scrollTo({top:0,behavior:"smooth"})}
+
+/* ============ 문제 도구 ============ */
+const rnd=n=>Math.floor(Math.random()*n);
+const pick=a=>a[rnd(a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const sample=(a,n)=>shuffle(a).slice(0,n);
+function mk(q,correct,wrongs,ex,opt={}){const opts=shuffle([correct,...wrongs]);return {q,opts,a:opts.indexOf(correct),ex,jm:!!opt.jm,see:opt.see,clue:opt.clue}}
+const CS=C.filter(c=>c.str); // 세기 구분 있는 자음
+const FAM=[["ㄱ","ㄲ","ㅋ"],["ㄷ","ㄸ","ㅌ"],["ㅂ","ㅃ","ㅍ"],["ㅈ","ㅉ","ㅊ"]];
+const grp=a=>a.join(" ");
+function mixedGroup(test){for(let k=0;k<50;k++){const g=sample(C,3);if(!test(g))return g.map(x=>x.g)}return ["ㄱ","ㄴ","ㅅ"]}
+
+const GEN={
+ s1(){const t=rnd(3);
+  if(t===0){const p=pick(C);const others=sample(Object.keys(PLACE).filter(k=>k!==p.place),3).map(k=>PLACE[k]);
+    return mk(`${q_(p.g)}은(는) 어디에서 나는 소리일까?`,PLACE[p.place],others,`${q_(p.g)}은(는) ${PLACE_ORG[p.place]}에서 나는 ${PLACE[p.place]}예요.`,{see:p.g})}
+  if(t===1){const pl=pick(Object.keys(PLACE));const p=pick(C.filter(c=>c.place===pl));const w=sample(C.filter(c=>c.place!==pl),3).map(c=>c.g);
+    return mk(`다음 중 ${PLACE[pl]}는?`,p.g,w,`${PLACE[pl]}: ${C.filter(c=>c.place===pl).map(c=>c.g).join(", ")}`,{jm:1,see:p.g})}
+  const pl=pick(["양순","치조","경구개","연구개"]);const same=sample(C.filter(c=>c.place===pl),3);const odd=pick(C.filter(c=>c.place!==pl));
+  return mk(`다음 중 소리 나는 자리가 나머지와 다른 하나는?`,odd.g,same.map(c=>c.g),`${same.map(c=>c.g).join(", ")}은(는) ${PLACE[pl]}, ${q_(odd.g)}은(는) ${PLACE[odd.place]}예요.`,{jm:1,see:odd.g})},
+ s2(){const t=rnd(3);
+  if(t===0){const p=pick(C);const w=sample(Object.keys(MANNER).filter(k=>k!==p.manner),3).map(k=>MANNER[k]);
+    return mk(`${q_(p.g)}을(를) 소리 내는 방법은?`,MANNER[p.manner],w,`${q_(p.g)}은(는) ${MANNER_DESC[p.manner]}인 ${MANNER[p.manner]}이에요.`,{see:p.g})}
+  if(t===1){const m=pick(Object.keys(MANNER));const p=pick(C.filter(c=>c.manner===m));const w=sample(C.filter(c=>c.manner!==m),3).map(c=>c.g);
+    return mk(`${MANNER_DESC[m]}는?`,p.g,w,`${MANNER[m]}: ${C.filter(c=>c.manner===m).map(c=>c.g).join(", ")}`,{jm:1,see:p.g})}
+  const m=pick(["파열","마찰","파찰","비음"]);const right=sample(C.filter(c=>c.manner===m),3).map(c=>c.g);
+  const ws=[0,1,2].map(()=>grp(mixedGroup(g=>g.every(x=>x.manner===g[0].manner))));
+  return mk(`${MANNER[m]}끼리 바르게 묶은 것은?`,grp(right),[...new Set(ws)].slice(0,3),`${MANNER[m]}은 ${MANNER_DESC[m]}로, ${C.filter(c=>c.manner===m).map(c=>c.g).join(", ")}이(가) 있어요.`,{see:right[0]})},
+ s3(){const t=rnd(3);
+  if(t===0){const f=pick(FAM);const k=pick(["된","거센"]);const ans=f[k==="된"?1:2];const pool=[...new Set([f[0],f[k==="된"?2:1],...pick(FAM.filter(x=>x!==f)).slice(0)])].filter(g=>g!==ans);
+    return mk(`${q_(f[0])}의 ${STR[k]}는?`,ans,sample(pool,3),`${f[0]}(예사소리) – ${f[1]}(된소리) – ${f[2]}(거센소리)`,{jm:1,see:ans})}
+  if(t===1){const p=pick(CS);return mk(`${q_(p.g)}은(는) 소리의 세기로 볼 때 무엇일까?`,STR[p.str],Object.keys(STR).filter(k=>k!==p.str).map(k=>STR[k]),
+    p.str==="예사"?"예사소리는 목청을 긴장시키지 않고 숨도 약하게 내는 소리예요.":p.str==="된"?"된소리는 목청을 긴장시켜 단단하게 내는 소리예요.":"거센소리는 숨이 거세게 터져 나오는 소리예요.",{see:p.g})}
+  const k=pick(["예사","된","거센"]);const right=sample(CS.filter(c=>c.str===k),3).map(c=>c.g);
+  const ws=[];while(ws.length<3){const g=sample(CS,3);if(!g.every(x=>x.str===g[0].str)){const s=grp(g.map(x=>x.g));if(!ws.includes(s))ws.push(s)}}
+  return mk(`${STR[k]}로만 묶은 것은?`,grp(right),ws,`${STR[k]}: ${CS.filter(c=>c.str===k).map(c=>c.g).join(", ")}`,{see:right[0]})},
+ s4(){const t=rnd(4);const VO=C.filter(c=>c.voiced),UV=C.filter(c=>!c.voiced);
+  if(t===0){const p=pick(VO);return mk("다음 중 울림소리는?",p.g,sample(UV,3).map(c=>c.g),"울림소리는 목청이 떨려 울리는 소리로, 자음 중에는 ㄴ, ㄹ, ㅁ, ㅇ뿐이에요. 모음은 모두 울림소리예요.",{jm:1,see:p.g})}
+  if(t===1){const p=pick(UV);return mk("다음 중 울림소리가 아닌 것은?",p.g,sample(VO,3).map(c=>c.g),`${q_(p.g)}은(는) 목청이 떨리지 않는 안울림소리예요.`,{jm:1,see:p.g})}
+  if(t===2){const p=pick(C.filter(c=>c.manner==="비음"));return mk("공기가 코로 나가는 소리(비음)는?",p.g,sample(C.filter(c=>c.manner!=="비음"),3).map(c=>c.g),"비음 ㅁ, ㄴ, ㅇ은 여린입천장이 내려가 공기가 코로 나가요.",{jm:1,see:p.g})}
+  const p=pick(C);return mk(`${q_(p.g)}을(를) 발음할 때 목청이 떨릴까?`,p.voiced?"떨린다 (울림소리)":"떨리지 않는다 (안울림소리)",[p.voiced?"떨리지 않는다 (안울림소리)":"떨린다 (울림소리)"],p.voiced?`${q_(p.g)}은(는) 울림소리예요.`:`${q_(p.g)}은(는) 안울림소리예요. 울림소리 자음은 ㄴ, ㄹ, ㅁ, ㅇ뿐이에요.`,{see:p.g})},
+ s5(){const t=rnd(3);
+  if(t===0){const v=pick(V1);const near=shuffle(V1.filter(x=>x!==v)).sort((a,b)=>sim(b,v)-sim(a,v)).slice(0,3);
+    return mk("이 특징을 모두 가진 모음은?",v.g,near.map(x=>x.g),`${q_(v.g)}: ${describe(v).slice(0,3).join(", ")}`,{jm:1,see:v.g,clue:describe(v).slice(0,3)})}
+  if(t===1){const v=pick(V1);const ds=d=>describe(d).slice(0,3).join(" · ");const w=[...new Set(shuffle(V1.filter(x=>x!==v)).map(ds))].filter(s=>s!==ds(v)).slice(0,3);
+    return mk(`${q_(v.g)}의 특징으로 알맞은 것은?`,ds(v),w,`${q_(v.g)}은(는) ${ds(v)}이에요.`,{see:v.g})}
+  const fs=[["전설 모음",x=>x.fb==="전설"],["후설 모음",x=>x.fb==="후설"],["원순 모음",x=>x.round],["평순 모음",x=>!x.round],["고모음",x=>x.h==="고"]];
+  const [nm,fn]=pick(fs);const right=sample(V1.filter(fn),3).map(x=>x.g);const ws=[];
+  while(ws.length<3){const g=sample(V1,3);if(!g.every(fn)){const s=grp(g.map(x=>x.g));if(!ws.includes(s))ws.push(s)}}
+  return mk(`${nm}로만 묶은 것은?`,grp(right),ws,`${nm}: ${V1.filter(fn).map(x=>x.g).join(", ")}`,{see:right[0]})},
+ s6(){const t=rnd(4);
+  if(t===0){const d=pick(V2);return mk("다음 중 이중 모음은?",d.g,sample(V1,3).map(x=>x.g),`${q_(d.g)}은(는) ${describe(d)[1]}로 이루어진 이중 모음이에요.`,{jm:1,see:d.g})}
+  if(t===1){const m=pick(V1);return mk("다음 중 단모음은?",m.g,sample(V2,3).map(x=>x.g),`${q_(m.g)}은(는) 발음하는 동안 입 모양이 변하지 않는 단모음이에요.`,{jm:1,see:m.g})}
+  if(t===2){const d=pick(V2.filter(x=>x.semi!=="ui"));const w=sample(V1.filter(x=>x.g!==d.to),3).map(x=>x.g);
+    return mk(`${q_(d.g)}는 반모음 뒤에 어떤 단모음이 이어지는 소리일까?`,d.to,w,`${q_(d.g)} = ${semiName(d)} + ‘${d.to}’`,{jm:1,see:d.g})}
+  const d=pick(V2);return mk("발음하는 동안 혀나 입술이 움직이는 모음은?",d.g,sample(V1,3).map(x=>x.g),"이중 모음은 처음과 끝의 입 모양과 혀의 위치가 달라요.",{jm:1,see:d.g})},
+ boss(){if(rnd(3)<2){const p=pick(C);const cl=describe(p).slice(0,3);
+    const near=shuffle(C.filter(x=>x!==p)).sort((a,b)=>simC(b,p)-simC(a,p)).slice(0,3);
+    return mk("단서를 모두 만족하는 음운은?",p.g,near.map(x=>x.g),`${q_(p.g)}: ${describe(p).join(", ")}`,{jm:1,see:p.g,clue:cl})}
+  return GEN.s5()}
+};
+function sim(a,b){return (a.fb===b.fb)+(a.h===b.h)+(a.round===b.round)}
+function simC(a,b){return (a.place===b.place)+(a.manner===b.manner)+(a.str===b.str)}
+
+const STAGES=[
+ {id:"s1",no:"STAGE 1",name:"자리 찾기",sub:"조음 위치 · 입술부터 목청까지",badge:"자리 탐험가",seal:"자"},
+ {id:"s2",no:"STAGE 2",name:"공기 길잡이",sub:"조음 방법 · 파열·마찰·파찰·비음·유음",badge:"공기 길잡이",seal:"길"},
+ {id:"s3",no:"STAGE 3",name:"세기 삼형제",sub:"예사소리 · 된소리 · 거센소리",badge:"세기 삼형제 마스터",seal:"세"},
+ {id:"s4",no:"STAGE 4",name:"떨림 감지기",sub:"울림소리와 비음",badge:"목청 공명가",seal:"울"},
+ {id:"s5",no:"STAGE 5",name:"모음 지도",sub:"혀의 앞뒤 · 높낮이 · 입술 모양",badge:"모음 지도 제작자",seal:"모"},
+ {id:"s6",no:"STAGE 6",name:"움직이는 모음",sub:"단모음과 이중 모음",badge:"이중 모음 추적자",seal:"이"},
+ {id:"boss",no:"BOSS",name:"음운 탐정",sub:"단서 세 개로 범인 음운 찾기",badge:"음운 탐정",seal:"탐",boss:1}
+];
+function makeSet(id){const out=[],seen=new Set();let guard=0;while(out.length<8&&guard++<80){const q=GEN[id]();const key=q.q+q.opts[q.a];if(!seen.has(key)&&q.opts.length>=2){seen.add(key);out.push(q)}}return out}
+
+/* ============ 스테이지 화면 ============ */
+const starStr=n=>"★".repeat(n)+"☆".repeat(3-n);
+const starsOf=sc=>sc>=7?3:sc>=5?2:sc>=3?1:0;
+function renderStageHome(){
+  $("stageHome").hidden=false;$("stagePlay").hidden=true;
+  $("stageGrid").innerHTML=STAGES.map(s=>{const b=S.best[s.id];return `<button class="stage${s.boss?" boss":""}" data-s="${s.id}"><span class="no">${s.no}</span><h3>${s.name}</h3><p>${s.sub}</p><span class="stars">${b==null?"☆☆☆":starStr(starsOf(b))}${b!=null?`<span class="note" style="margin-left:8px;color:inherit;opacity:.7;font-size:12px;letter-spacing:0">최고 ${b}/8</span>`:""}</span></button>`}).join("");
+  $("stageGrid").querySelectorAll(".stage").forEach(b=>b.onclick=()=>startStage(b.dataset.s));
+  const extra=[{badge:"음운 체계 박사",seal:"박"}];
+  $("badgeShelf").innerHTML=[...STAGES,...extra].map(s=>`<span class="badge${S.badges.includes(s.badge)?" got":""}"><span class="seal">${s.seal}</span>${s.badge}</span>`).join("");
+}
+let G=null;
+function startStage(id){G={id,qs:makeSet(id),i:0,res:[],combo:0,xp:0,answered:false};$("stageHome").hidden=true;$("stagePlay").hidden=false;renderQ();window.scrollTo({top:0})}
+function qMarkup(q,i,n,mode){
+  return `<div class="qcard"><div class="qn">${mode} · ${i+1} / ${n}</div><h2>${q.q}</h2>${q.clue?`<div class="clue">${q.clue.map(c=>`<span class="chip k">${c}</span>`).join("")}</div>`:""}
+  <div class="opts">${q.opts.map((o,k)=>`<button class="opt${q.jm?" jm":""}" data-k="${k}"><span class="k">${"①②③④⑤"[k]}</span><span class="t">${o}</span></button>`).join("")}</div><div id="fbBox"></div></div>`}
+function renderQ(){
+  const st=STAGES.find(s=>s.id===G.id), q=G.qs[G.i];
+  const dots=G.qs.map((_,k)=>`<i class="${k<G.res.length?(G.res[k]?"ok":"no"):k===G.i?"cur":""}"></i>`).join("");
+  $("stagePlay").innerHTML=`<div class="hud"><button class="btn" id="quit">← 스테이지</button><div class="dots">${dots}</div><div class="combo">${G.combo>=2?G.combo+" 연속 정답! ":""}+${G.xp} XP</div></div>`+qMarkup(q,G.i,G.qs.length,st.name);
+  $("quit").onclick=renderStageHome;
+  $("stagePlay").querySelectorAll(".opt").forEach(b=>b.onclick=()=>answer(+b.dataset.k));
+}
+function answer(k){if(G.answered)return;G.answered=true;const q=G.qs[G.i],ok=k===q.a;
+  G.res.push(ok);if(ok){G.combo++;G.xp+=10+(G.combo>=3?5:0)}else G.combo=0;
+  $("stagePlay").querySelectorAll(".opt").forEach((b,j)=>{b.disabled=true;if(j===q.a)b.classList.add("right");else if(j===k)b.classList.add("wrong")});
+  const last=G.i===G.qs.length-1;
+  $("fbBox").innerHTML=`<div class="fb ${ok?"ok":"no"}"><b>${ok?(G.combo>=3?"정답! 콤보 보너스 +5":"정답!"):"아쉬워요. 정답은 "+"①②③④"[q.a]}</b>${q.ex}<div class="ctl">${q.see?`<button class="btn" id="see">발음 기관으로 확인 (${q.see})</button>`:""}<button class="btn pri" id="next">${last?"결과 보기":"다음 문제"}</button></div></div>`;
+  if(q.see)$("see").onclick=()=>openInLab(q.see);
+  $("next").onclick=()=>{G.answered=false;if(last)finishStage();else{G.i++;renderQ()}};
+  $("next").focus();
+}
+function finishStage(){
+  const st=STAGES.find(s=>s.id===G.id), sc=G.res.filter(Boolean).length, stars=starsOf(sc);
+  const prev=S.best[G.id];S.best[G.id]=Math.max(prev??0,sc);S.xp+=G.xp+(stars===3?20:0);
+  let newBadge=false;if(stars===3&&!S.badges.includes(st.badge)){S.badges.push(st.badge);newBadge=true}
+  save();
+  const msg=stars===3?"완벽에 가까워요!":stars===2?"잘했어요. 한 번 더 하면 ★★★!":stars===1?"조금만 더! 탐구실에서 확인하고 다시 도전해요.":"탐구실에서 체계표를 살펴보고 다시 도전해요.";
+  $("stagePlay").innerHTML=`<div class="qcard end"><div class="bigstars">${[0,1,2].map(i=>`<span>${i<stars?"★":"☆"}</span>`).join("")}</div><h2>${st.name} ${sc} / 8</h2><p>${msg}</p><p class="note">이번 판 +${G.xp+(stars===3?20:0)} XP${stars===3?" (★★★ 보너스 20 포함)":""}</p>${newBadge?`<p><span class="badge got" style="display:inline-flex"><span class="seal">${st.seal}</span>새 배지: ${st.badge}</span></p>`:""}<div class="ctl" style="justify-content:center"><button class="btn" id="again">다시 도전</button><button class="btn pri" id="home">스테이지 목록</button></div></div>`;
+  $("again").onclick=()=>startStage(G.id);$("home").onclick=renderStageHome;
+}
+
+/* ============ 확인 평가(고정 20문항) ============ */
+const DOMAINS=["조음 위치","조음 방법","소리의 세기","울림·비음","단모음","이중 모음·체계"];
+const TEST=[
+ [0,"‘ㅁ’과 같은 자리에서 나는 소리는?",["ㄴ","ㅂ","ㅇ","ㄹ"],1,"ㅁ, ㅂ, ㅃ, ㅍ은 두 입술에서 나는 입술소리예요.",1],
+ [0,"혀끝이 윗잇몸에 닿거나 가까워져 나는 소리끼리 묶은 것은?",["ㄷ ㅅ ㄴ","ㅈ ㅉ ㅊ","ㄱ ㅋ ㅇ","ㅂ ㅍ ㅁ"],0,"잇몸소리는 ㄷ, ㄸ, ㅌ, ㅅ, ㅆ, ㄴ, ㄹ이에요."],
+ [0,"‘ㅈ, ㅉ, ㅊ’이 나는 자리는?",["윗잇몸","센입천장","여린입천장","목청"],1,"ㅈ, ㅉ, ㅊ은 혓바닥과 센입천장에서 나는 센입천장소리예요."],
+ [0,"여린입천장소리가 아닌 것은?",["ㄱ","ㅋ","ㅇ","ㅎ"],3,"ㅎ은 목청 사이에서 나는 목청소리예요.",1],
+ [1,"공기를 막았다가 한꺼번에 터뜨리며 내는 소리는?",["ㅅ","ㄷ","ㅈ","ㄹ"],1,"ㄷ은 파열음이에요. ㅅ은 마찰음, ㅈ은 파찰음, ㄹ은 유음이에요.",1],
+ [1,"입안의 통로를 좁혀 공기가 스치며 나는 소리끼리 묶은 것은?",["ㅅ ㅆ ㅎ","ㅈ ㅉ ㅊ","ㅁ ㄴ ㅇ","ㅂ ㄷ ㄱ"],0,"마찰음은 ㅅ, ㅆ, ㅎ이에요."],
+ [1,"‘ㅊ’을 소리 내는 방법으로 알맞은 것은?",["파열음","마찰음","파찰음","유음"],2,"ㅊ은 막았다가 조금씩 열며 스치게 내는 파찰음이에요."],
+ [1,"혀끝을 윗잇몸에 가볍게 대고 공기를 혀 옆으로 흘려 내는 소리는?",["ㄴ","ㄹ","ㄷ","ㅅ"],1,"ㄹ은 유음이에요.",1],
+ [2,"‘ㄷ’의 거센소리는?",["ㄸ","ㅌ","ㅊ","ㅎ"],1,"ㄷ(예사소리) – ㄸ(된소리) – ㅌ(거센소리)",1],
+ [2,"된소리로만 묶은 것은?",["ㄲ ㄸ ㅃ","ㅋ ㅌ ㅍ","ㄱ ㄷ ㅂ","ㅆ ㅊ ㅎ"],0,"된소리는 ㄲ, ㄸ, ㅃ, ㅆ, ㅉ이에요."],
+ [2,"예사소리와 된소리는 있지만 거센소리는 없는 것은?",["ㄱ","ㄷ","ㅅ","ㅈ"],2,"ㅅ은 된소리 ㅆ은 있지만 짝이 되는 거센소리가 없어요.",1],
+ [3,"다음 중 울림소리가 아닌 것은?",["ㅁ","ㄴ","ㄹ","ㅂ"],3,"울림소리 자음은 ㄴ, ㄹ, ㅁ, ㅇ뿐이에요.",1],
+ [3,"발음할 때 공기가 코로 나가는 소리끼리 묶은 것은?",["ㅁ ㄴ ㅇ","ㄴ ㄹ ㅇ","ㅁ ㅂ ㅍ","ㄹ ㅎ ㅇ"],0,"비음은 ㅁ, ㄴ, ㅇ이에요."],
+ [4,"혀의 최고점이 앞쪽에 있고, 입술을 둥글게 오므려 내는 고모음은?",["ㅣ","ㅟ","ㅜ","ㅡ"],1,"ㅟ는 전설 · 고모음 · 원순 모음이에요.",1],
+ [4,"후설 모음이 아닌 것은?",["ㅡ","ㅓ","ㅐ","ㅗ"],2,"ㅐ는 전설 모음이에요.",1],
+ [4,"‘ㅏ’를 발음할 때의 특징으로 알맞은 것은?",["입을 크게 벌려 혀가 낮아진다","입술을 둥글게 오므린다","혀의 최고점이 앞쪽에 있다","혀가 입천장에 가장 가깝다"],0,"ㅏ는 후설 · 저모음 · 평순 모음이에요."],
+ [4,"‘ㅔ’에서 입술 모양만 둥글게 바꾸면 나는 모음은?",["ㅚ","ㅟ","ㅗ","ㅐ"],0,"ㅔ(전설 · 중 · 평순) → ㅚ(전설 · 중 · 원순)"],
+ [5,"다음 중 단모음은?",["ㅑ","ㅚ","ㅘ","ㅢ"],1,"ㅚ는 단모음이에요(이중 모음으로 발음하는 것도 허용).",1],
+ [5,"이중 모음을 발음할 때 일어나는 일로 알맞은 것은?",["처음과 끝의 입 모양이나 혀의 위치가 달라진다","처음부터 끝까지 입 모양이 변하지 않는다","공기가 코로 빠져나간다","목청이 떨리지 않는다"],0,"이중 모음은 반모음에서 단모음으로 옮겨 가며 소리 나요."],
+ [5,"현대 국어의 음운 체계에 대한 설명으로 옳은 것은?",["자음 19개, 모음 21개","자음 14개, 모음 10개","자음 19개, 모음 10개","자음 21개, 모음 19개"],0,"자음 19개, 모음 21개(단모음 10개 + 이중 모음 11개)예요."]
+].map(a=>({d:a[0],q:a[1],opts:a[2],a:a[3],ex:a[4],jm:!!a[5]}));
+let TT=null;
+function renderTest(){
+  const box=$("testBox");
+  if(TT&&!TT.done){renderTQ();return}
+  const w=S.who;
+  box.innerHTML=`<div class="eyebrow">CHECK</div><h2 style="font-size:28px">확인 평가 20문항</h2>
+  <p class="note" style="max-width:62ch">조음 위치, 조음 방법, 소리의 세기, 울림·비음, 단모음, 이중 모음을 고르게 묻습니다. 풀이 중에는 정답이 보이지 않고, 끝나면 해설과 결과 코드가 나와요. 결과 코드를 선생님께 제출하세요.</p>
+  ${S.test?`<p class="tip">지난 평가: ${S.test.score} / 20 · 다시 보면 새 결과로 바뀌어요.</p>`:""}
+  <form class="form mt" id="whoForm"><label>반<input id="fBan" inputmode="numeric" placeholder="2-3" value="${esc(w.ban)}" required></label><label>번호<input id="fNo" inputmode="numeric" placeholder="15" value="${esc(w.no)}" required></label><label class="nm">이름<input id="fName" placeholder="홍길동" value="${esc(w.name)}" required></label></form>
+  <div class="ctl mt"><button class="btn pri big" id="tStart">평가 시작</button><span class="note" id="tErr"></span></div>`;
+  $("tStart").onclick=()=>{const ban=$("fBan").value.trim(),no=$("fNo").value.trim(),name=$("fName").value.trim().replace(/[|]/g,"");
+    if(!ban||!no||!name){$("tErr").textContent="반, 번호, 이름을 모두 적어 주세요.";return}
+    S.who={ban,no,name};save();
+    TT={order:shuffle(TEST.map((_,i)=>i)),ans:{},i:0,done:false};renderTQ()};
+}
+function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c])}
+function renderTQ(){
+  const box=$("testBox"), idx=TT.order[TT.i], q=TEST[idx], n=TEST.length;
+  const dots=TT.order.map((_,k)=>`<i class="${k===TT.i?"cur":(TT.ans[TT.order[k]]!=null?"ok":"")}"></i>`).join("");
+  box.innerHTML=`<div class="hud"><span class="note">${esc(S.who.ban)}반 ${esc(S.who.no)}번 ${esc(S.who.name)}</span><div class="dots" style="flex-wrap:wrap">${dots}</div></div>`+qMarkup(q,TT.i,n,"확인 평가")+
+   `<div class="ctl mt" style="justify-content:space-between"><button class="btn" id="tPrev" ${TT.i===0?"disabled":""}>← 이전</button><button class="btn pri" id="tNext" ${TT.ans[idx]==null?"disabled":""}>${TT.i===n-1?"제출하기":"다음 →"}</button></div>`;
+  box.querySelectorAll(".opt").forEach(b=>{if(+b.dataset.k===TT.ans[idx])b.classList.add("sel");
+    b.onclick=()=>{TT.ans[idx]=+b.dataset.k;box.querySelectorAll(".opt").forEach(x=>x.classList.toggle("sel",x===b));$("tNext").disabled=false}});
+  $("tPrev").onclick=()=>{TT.i--;renderTQ()};
+  $("tNext").onclick=()=>{if(TT.i<n-1){TT.i++;renderTQ()}else submitTest()};
+}
+function submitTest(){
+  const bits=TEST.map((q,i)=>TT.ans[i]===q.a?"1":"0").join("");const score=[...bits].filter(b=>b==="1").length;
+  S.test={score,bits,ans:TEST.map((_,i)=>TT.ans[i]),at:new Date().toISOString().slice(0,16).replace("T"," ")};
+  S.xp+=score*5; if(score>=18&&!S.badges.includes("음운 체계 박사"))S.badges.push("음운 체계 박사");
+  TT.done=true;save();location.hash="me";
+}
+
+/* ============ 결과 코드 ============ */
+const SALT="eumun2022";
+function h4(str){let h=2166136261;for(const ch of SALT+str){h^=ch.codePointAt(0);h=Math.imul(h,16777619)}return (h>>>0).toString(36).padStart(4,"0").slice(-4)}
+function makeCode(who,best,test){
+  const stg=STAGES.map(s=>best[s.id]==null?"-":best[s.id]).join(",");
+  const body=["음운",who.ban,who.no,who.name,"S="+stg,"T="+(test?test.score:"-"),"B="+(test?test.bits:"-")].join("|");
+  return body+"|K="+h4(body);
+}
+function levelOf(p){return p>=90?"A":p>=80?"B":p>=70?"C":p>=60?"D":"E"}
+function domainPct(bits){return DOMAINS.map((_,d)=>{const idx=TEST.map((q,i)=>q.d===d?i:-1).filter(i=>i>=0);const ok=idx.filter(i=>bits[i]==="1").length;return Math.round(ok/idx.length*100)})}
+function renderMe(){
+  const box=$("meBox"), t=S.test;
+  const stageRows=STAGES.map(s=>{const b=S.best[s.id];return `<div class="bar"><span>${s.name}</span><span class="tr"><i style="width:${b==null?0:b/8*100}%"></i></span><span class="v">${b==null?"–":b+"/8"}</span></div>`}).join("");
+  let testPart=`<div class="card"><h3 style="font-size:22px">확인 평가</h3><p class="note">아직 평가를 보지 않았어요.</p><button class="btn pri" onclick="location.hash='test'">평가 보러 가기</button></div>`;
+  if(t){const pct=t.score*5, dp=domainPct(t.bits);
+    testPart=`<div class="card"><div class="row"><div><div class="eyebrow">확인 평가 · ${esc(t.at)}</div><h3 style="font-size:24px">${t.score} / 20 문항</h3><span class="note">정답률 ${pct}%</span></div><div style="text-align:center"><div class="lvl">${levelOf(pct)}</div><span class="note">성취 수준</span></div></div>
+    <div class="bars mt">${DOMAINS.map((d,i)=>`<div class="bar"><span>${d}</span><span class="tr"><i style="width:${dp[i]}%;background:${dp[i]<60?"var(--bad)":"var(--teal)"}"></i></span><span class="v">${dp[i]}%</span></div>`).join("")}</div>
+    ${dp.some(x=>x<60)?`<p class="tip mt">보충하면 좋을 영역: ${DOMAINS.filter((_,i)=>dp[i]<60).join(", ")} — 도전 스테이지에서 다시 연습해 보세요.</p>`:""}</div>`}
+  const who=S.who.name?S.who:null;
+  const code=who?makeCode(S.who,S.best,t):"";
+  box.innerHTML=`<div class="eyebrow">MY REPORT</div><h2 style="font-size:28px">${who?esc(who.ban)+"반 "+esc(who.no)+"번 "+esc(who.name):"나의 결과"}</h2>
+  <div class="me mt">${testPart}
+   <div class="card"><h3 style="font-size:22px">스테이지 기록</h3><p class="note">총 ${S.xp} XP · 배지 ${S.badges.length}개</p><div class="bars">${stageRows}</div></div></div>
+  <div class="card mt"><h3 style="font-size:22px">결과 코드</h3>
+   ${who?`<p class="note">이 코드를 복사해서 선생님이 알려 준 곳(클래스룸, 패들렛 등)에 붙여 넣으세요. 코드를 고치면 선생님 화면에서 ‘확인 필요’로 표시돼요.</p><div class="code" id="codeTxt">${esc(code)}</div><div class="ctl mt"><button class="btn pri" id="copyCode">코드 복사</button><span class="note" id="copied"></span></div>`
+   :`<p class="note">확인 평가에서 반·번호·이름을 입력하면 결과 코드가 만들어져요.</p>`}</div>
+  ${t?`<h3 class="mt" style="font-size:22px">평가 해설</h3><div class="review">${TEST.map((q,i)=>{const ok=t.bits[i]==="1";const my=t.ans?t.ans[i]:null;return `<div class="rv"><div class="h"><span class="mark ${ok?"o":"x"}">${i+1}번 ${ok?"정답":"오답"}</span><b>${q.q}</b></div><p>정답: ${q.opts[q.a]}${!ok&&my!=null?` · 내가 고른 답: ${q.opts[my]}`:""} — ${q.ex}</p></div>`}).join("")}</div>`:""}`;
+  if(who)$("copyCode").onclick=()=>{const txt=$("codeTxt").textContent;
+    const done=()=>{$("copied").textContent="복사했어요."};
+    try{navigator.clipboard.writeText(txt).then(done,()=>selectEl($("codeTxt")))}catch(e){selectEl($("codeTxt"))}};
+}
+function selectEl(el){const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);$("copied")&&($("copied").textContent="선택했어요. 길게 눌러 복사하세요.")}
+
+/* ============ 교사용 ============ */
+function parseCodes(text){
+  const map=new Map();
+  text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean).forEach(line=>{
+    const f=line.split("|");if(f[0]!=="음운"||f.length<8)return;
+    const kv={};f.slice(4).forEach(x=>{const i=x.indexOf("=");if(i>0)kv[x.slice(0,i)]=x.slice(i+1)});
+    const body=line.slice(0,line.lastIndexOf("|K="));
+    const ok=kv.K===h4(body);
+    const stages=(kv.S||"").split(",").map(x=>x==="-"||x===""?null:+x);
+    const score=kv.T&&kv.T!=="-"?+kv.T:null, bits=kv.B&&kv.B!=="-"&&kv.B.length===20?kv.B:null;
+    map.set(f[1]+"#"+f[2],{ban:f[1],no:f[2],name:f[3],stages,score,bits,ok});
+  });
+  return [...map.values()].sort((a,b)=>a.ban.localeCompare(b.ban,"ko",{numeric:true})||(+a.no-+b.no));
+}
+const LV_COL={A:"var(--teal)",B:"var(--good)",C:"var(--mark)",D:"var(--tissue-deep)",E:"var(--bad)"};
+function analyze(){
+  const rows=parseCodes($("codes").value), rep=$("report");
+  if(!rows.length){rep.innerHTML=`<p class="tip mt">읽을 수 있는 결과 코드가 없어요. ‘음운|’으로 시작하는 줄을 붙여 넣었는지 확인해 주세요.</p>`;return}
+  const tested=rows.filter(r=>r.bits);
+  const avg=tested.length?tested.reduce((s,r)=>s+r.score,0)/tested.length:0;
+  const lv={A:0,B:0,C:0,D:0,E:0};tested.forEach(r=>lv[levelOf(r.score*5)]++);
+  const itemRate=TEST.map((_,i)=>tested.length?Math.round(tested.filter(r=>r.bits[i]==="1").length/tested.length*100):0);
+  const dom=DOMAINS.map((_,d)=>{if(!tested.length)return 0;const idx=TEST.map((q,i)=>q.d===d?i:-1).filter(i=>i>=0);return Math.round(idx.reduce((s,i)=>s+itemRate[i],0)/idx.length)});
+  const worst=itemRate.map((r,i)=>[r,i]).sort((a,b)=>a[0]-b[0]).slice(0,3);
+  const bad=rows.filter(r=>!r.ok).length;
+  const col=r=>r>=80?"var(--good-soft)":r>=60?"var(--mark-soft)":"var(--bad-soft)";
+  rep.innerHTML=`
+  <div class="tiles"><div class="tile"><div class="n">${rows.length}</div><div class="l">제출 인원 (평가 응시 ${tested.length})</div></div>
+   <div class="tile"><div class="n">${tested.length?avg.toFixed(1):"–"}<span style="font-size:16px"> /20</span></div><div class="l">평가 평균</div></div>
+   <div class="tile"><div class="n">${tested.length?Math.round((lv.A+lv.B+lv.C)/tested.length*100)+"%":"–"}</div><div class="l">성취 수준 C 이상</div><div class="dist">${Object.keys(lv).map(k=>lv[k]?`<i title="${k} ${lv[k]}명" style="width:${lv[k]/tested.length*100}%;background:${LV_COL[k]}"></i>`:"").join("")}</div><div class="l" style="margin-top:4px">${Object.keys(lv).map(k=>`${k} ${lv[k]}`).join(" · ")}</div></div>
+   <div class="tile"><div class="n" style="color:${bad?"var(--bad)":"inherit"}">${bad}</div><div class="l">확인 필요 코드</div></div></div>
+  <div class="grid2">
+   <div class="card"><h3 style="font-size:20px">영역별 정답률</h3><div class="bars mt">${DOMAINS.map((d,i)=>`<div class="bar"><span>${d}</span><span class="tr"><i style="width:${dom[i]}%;background:${dom[i]<60?"var(--bad)":"var(--teal)"}"></i></span><span class="v">${dom[i]}%</span></div>`).join("")}</div></div>
+   <div class="card"><h3 style="font-size:20px">문항별 정답률</h3><div class="items">${itemRate.map((r,i)=>`<div style="background:${col(r)}" title="${esc(TEST[i].q)}"><b>${i+1}</b>${r}%</div>`).join("")}</div>
+    <ul class="worst">${worst.map(([r,i])=>`<li><span>${i+1}번 ${r}%</span>${esc(TEST[i].q)} <span class="note">(${DOMAINS[TEST[i].d]})</span></li>`).join("")}</ul></div>
+  </div>
+  <div class="card mt"><div class="row"><h3 style="font-size:20px">학생별 현황</h3><div class="ctl"><button class="btn" id="copyTsv">표 복사 (엑셀 붙여넣기용)</button><span class="note" id="tsvMsg"></span></div></div>
+   <div class="tbl-wrap mt"><table class="roster"><thead><tr><th>반</th><th>번호</th><th>이름</th><th>평가</th><th>수준</th>${STAGES.map(s=>`<th title="${s.name}">${s.boss?"보스":s.no.replace("STAGE ","S")}</th>`).join("")}<th>보충 영역</th><th></th></tr></thead><tbody>
+   ${rows.map(r=>{const dp=r.bits?domainPct(r.bits):null;const weak=dp?DOMAINS.filter((_,i)=>dp[i]<60).join(", "):"";
+     return `<tr><td>${esc(r.ban)}</td><td class="num">${esc(r.no)}</td><td>${esc(r.name)}</td><td class="num">${r.score==null?"–":r.score+"/20"}</td><td>${r.score==null?"–":levelOf(r.score*5)}</td>${r.stages.map(x=>`<td class="num">${x==null?"–":x}</td>`).join("")}<td>${weak||(dp?"없음":"–")}</td><td>${r.ok?"":'<span class="warn">확인 필요</span>'}</td></tr>`}).join("")}
+   </tbody></table></div>
+   <p class="note">‘확인 필요’는 코드가 중간에 바뀌었다는 뜻이에요(복사 실수 또는 수정). 학생 화면의 코드와 다시 비교해 주세요. 성취 수준은 정답률 90·80·70·60% 기준입니다.</p></div>`;
+  $("copyTsv").onclick=()=>{const head=["반","번호","이름","평가","수준",...STAGES.map(s=>s.name),...TEST.map((_,i)=>"Q"+(i+1)),"확인"].join("\t");
+    const lines=rows.map(r=>[r.ban,r.no,r.name,r.score??"",r.score==null?"":levelOf(r.score*5),...r.stages.map(x=>x??""),...(r.bits?[...r.bits]:TEST.map(()=>"")),r.ok?"":"확인 필요"].join("\t"));
+    const txt=[head,...lines].join("\n");
+    try{navigator.clipboard.writeText(txt).then(()=>$("tsvMsg").textContent="복사했어요. 엑셀에 붙여 넣으세요.",()=>$("tsvMsg").textContent="이 화면에서는 복사가 막혀 있어요.")}catch(e){$("tsvMsg").textContent="이 화면에서는 복사가 막혀 있어요."}};
+}
+function sampleCodes(){
+  const prof=[[.95,8],[.85,7],[.7,6],[.6,5],[.45,4],[.9,8],[.75,6],[.55,3]];
+  let seed=7;const r=()=>(seed=(seed*9301+49297)%233280)/233280;
+  const hardness=[.9,.95,.85,.75,.9,.8,.8,.85,.9,.85,.6,.9,.85,.6,.7,.85,.75,.55,.9,.95];
+  return prof.map(([ab,st],k)=>{const bits=hardness.map(h=>r()<ab*h+.15?"1":"0").join("");const best={};STAGES.forEach((s,i)=>{if(i<6||k%2===0)best[s.id]=Math.max(0,Math.min(8,st-(r()<.4?1:0)))});
+    return makeCode({ban:"2-예시",no:String(k+1),name:"예시학생"+(k+1)},best,{score:[...bits].filter(b=>b==="1").length,bits})}).join("\n")+"\n"+makeCode({ban:"2-예시",no:"9",name:"예시학생9"},{s1:8},{score:20,bits:"1".repeat(20)}).replace("T=20","T=19");
+}
+$("analyze").onclick=analyze;
+$("clearCodes").onclick=()=>{$("codes").value="";$("report").innerHTML="";$("sampleNote").textContent=""};
+$("loadSample").onclick=()=>{$("codes").value=sampleCodes();$("sampleNote").innerHTML='<span class="sample-tag">예시 데이터</span> 가상의 학생 9명입니다. 9번은 일부러 고친 코드예요.';analyze()};
+$("codes").value=sampleCodes();$("sampleNote").innerHTML='<span class="sample-tag">예시 데이터</span> 지금 보이는 표는 가상의 학생 9명 예시입니다. ‘비우기’ 후 실제 코드를 붙여 넣으세요.';analyze();
+
+/* ============ 시작 ============ */
+draw();setSel(C[0]);show(location.hash.slice(1)||"lab");
+if(REDUCED){setInterval(()=>{if(running){raf=0;frame(performance.now())}},120)}
+})();
+</script>
+
+</body></html>
